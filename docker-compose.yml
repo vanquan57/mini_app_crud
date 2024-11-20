@@ -1,0 +1,40 @@
+services:
+    web:
+        image: nginx:alpine
+        ports:
+            - ${APP_NGINX_PORT}:80
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - php
+            - db
+        networks:
+            - mini_app_crud
+    php:
+        ports:
+            - ${APP_PHP_PORT}:9000
+        container_name: php_internship_training
+        build:
+            dockerfile: ./docker/php/Dockerfile
+        volumes:
+            - ./:/var/www/html
+        depends_on:
+            - db
+        networks:
+            - mini_app_crud
+    db:
+      image: mysql:8.0
+      container_name: db_mini_app_crud
+      ports:
+          - ${APP_MYSQL_PORT}:3306
+      volumes:
+            - ./docker/mysql:/var/lib/mysql
+      environment:
+          MYSQL_DATABASE: ${MYSQL_DATABASE}
+          MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      networks:
+        - mini_app_crud
+networks:
+    mini_app_crud:
+        driver: bridge
